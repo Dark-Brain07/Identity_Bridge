@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg-color: #000000;
+  --text-main: #ffffff;
+  --text-muted: #888888;
+  --accent: #ffffff;
+  --terminal-green: #00ff41;
+  --border-color: #333333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Navbar */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 5%;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo span {
+  color: var(--text-muted);
+}
+
+.btn-connect {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-connect:hover {
+  background: var(--text-main);
+  color: var(--bg-color);
+}
+
+.btn-connect.connected {
+  border-color: var(--terminal-green);
+  color: var(--terminal-green);
+}
+
+/* Hero */
+.hero {
+  padding: 6rem 5% 4rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* Minting Interface */
+.mint-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .mint-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.input-box {
+  background: #0a0a0a;
+  border: 1px solid var(--border-color);
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.input-label {
+  display: block;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.input-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  padding: 10px 0;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+  margin-bottom: 2rem;
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+}
+
+.btn-mint {
+  width: 100%;
+  background: var(--text-main);
+  color: var(--bg-color);
+  border: none;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.2s;
+}
+
+.btn-mint:hover {
+  opacity: 0.9;
+}
+
+.btn-mint:disabled {
+  background: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Terminal Area */
+.terminal {
+  background: #050505;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  color: var(--terminal-green);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+
+.terminal-line {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  opacity: 0;
+  animation: fadeIn 0.1s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--terminal-green);
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.success-box {
+  margin-top: 20px;
+  border: 1px solid var(--terminal-green);
+  padding: 15px;
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.error-box {
+  margin-top: 20px;
+  border: 1px solid #ff3333;
+  color: #ff3333;
+  padding: 15px;
+  background: rgba(255, 51, 51, 0.05);
+}
