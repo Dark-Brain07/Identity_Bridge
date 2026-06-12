@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createClient } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 import { Code, CheckCircle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -75,10 +76,8 @@ function App() {
       }
 
       // Initialize GenLayer Client
-      const glAccount = {
-        address: walletAddress,
-        privateKey: '0x0' // GenLayer requires this for the client config, though it uses MetaMask for signing
-      };
+      const dummyKey = '0x1111111111111111111111111111111111111111111111111111111111111111' as `0x${string}`;
+      const glAccount = privateKeyToAccount(dummyKey);
       
       const glClient = createClient({ chain: studionet, account: glAccount });
 
