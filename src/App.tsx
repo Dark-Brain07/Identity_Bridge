@@ -75,39 +75,71 @@ function App() {
       }
 
       // Initialize GenLayer Client
-      const glClient = createClient({ chain: studionet });
+      const glAccount = {
+        address: walletAddress,
+        privateKey: '0x0' // GenLayer requires this for the client config, though it uses MetaMask for signing
+      };
       
-      // To satisfy TypeScript unused variable warnings
-      console.log("Client Initialized:", glClient, CONTRACT_ADDRESS);
+      const glClient = createClient({ chain: studionet, account: glAccount });
 
-      addLine("> Executing gl.nondet.web.get to scrape profile...", 4500);
+      addLine("> Connecting to IdentityBridge Contract...", 4500);
       
-      // We simulate the transaction delay since Studionet requires deployment
-      // In a real scenario, this would be writeContract
-      setTimeout(() => {
-        addLine("> Data retrieved. Passing to AI Oracle for validation...", 6000);
-      }, 4500);
+      setTimeout(async () => {
+        try {
+          addLine("> Executing gl.nondet.web.get to scrape profile...", 1000);
+          
+          // Actually send the transaction to the blockchain!
+          const txHash = await glClient.writeContract({
+            address: CONTRACT_ADDRESS as `0x${string}`,
+            functionName: 'mint_developer_badge',
+            args: [githubUrl],
+            value: 0n,
+          });
 
-      setTimeout(() => {
-        addLine("> gl.nondet.exec_prompt running consensus across validators...", 8000);
-      }, 4500);
+          addLine(`> TX Hash generated: ${txHash.substring(0, 15)}...`, 2000);
+          addLine("> gl.nondet.exec_prompt running consensus across validators...", 4000);
+          
+          // Wait for network propagation and consensus
+          try {
+            await glClient.waitForTransactionReceipt({ hash: txHash, status: 'ACCEPTED' as any });
+          } catch (err) {
+            console.warn("Receipt timeout, polling...");
+          }
+          
+          addLine("> Consensus reached. Fetching minted SBT state...", 15000);
 
-      // Simulate network request completing
-      setTimeout(() => {
-        const mockResponse = {
-          status: "MINTED",
-          badge_type: "Master Developer SBT",
-          details: "Verification Successful! The GenLayer AI Oracle has verified your developer activity and minted your Soulbound Proof-of-Skill Token."
-        };
-        
-        addLine("> Consensus reached. Writing state to ledger...", 11000);
-        
-        setTimeout(() => {
-          setResult(mockResponse);
-          addLine("> SUCCESS: Transaction confirmed in block.", 12500);
+          // Poll for the result
+          let data: string | null = null;
+          for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            try {
+              const result = await glClient.readContract({
+                address: CONTRACT_ADDRESS as `0x${string}`,
+                functionName: 'get_badge',
+                args: [githubUrl],
+              });
+              
+              if (result && result !== 'NOT_FOUND') {
+                data = result as string;
+                break;
+              }
+            } catch (e) {
+              console.warn("Poll failed, retrying...");
+            }
+          }
+
+          if (data) {
+            setResult(JSON.parse(data));
+            addLine("> SUCCESS: Proof of Skill verified and recorded.", 1000);
+          } else {
+            addLine("> ERROR: Transaction still processing. Check explorer later.", 1000);
+          }
           setIsProcessing(false);
-        }, 12500);
-        
+
+        } catch (blockchainErr: any) {
+          addLine(`> BLOCKCHAIN ERROR: ${blockchainErr.message}`, 1000);
+          setIsProcessing(false);
+        }
       }, 4500);
 
     } catch (error: any) {
