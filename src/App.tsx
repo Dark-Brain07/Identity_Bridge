@@ -160,7 +160,7 @@ function App() {
             
             <div className="terminal-content">
               {terminalLines.length === 0 && !isProcessing && (
-                <div style={{opacity: 0.5}}>> Awaiting command execution...</div>
+                <div style={{opacity: 0.5}}>&gt; Awaiting command execution...</div>
               )}
               
               <AnimatePresence>
