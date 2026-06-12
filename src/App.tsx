@@ -20,6 +20,26 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [result, setResult] = useState<any>(null);
+  const [existingSBT, setExistingSBT] = useState<any>(null);
+
+  const checkExistingSBT = async (address: string, client: any) => {
+    const saved = JSON.parse(localStorage.getItem('my_sbts') || '{}');
+    const url = saved[address];
+    if (url) {
+      try {
+        const res = await client.readContract({
+          address: CONTRACT_ADDRESS as `0x${string}`,
+          functionName: 'get_badge',
+          args: [url],
+        });
+        if (res && res !== 'NOT_FOUND') {
+          setExistingSBT(JSON.parse(res as string));
+        }
+      } catch (e) {
+        console.error("Could not fetch existing SBT", e);
+      }
+    }
+  };
 
   const addLine = (line: string, delay: number = 0) => {
     setTimeout(() => {
@@ -31,7 +51,14 @@ function App() {
     if (typeof window.ethereum !== 'undefined') {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setWalletAddress(accounts[0]);
+        const addr = accounts[0];
+        setWalletAddress(addr);
+        
+        // Setup client to check for existing SBTs immediately
+        const glAccount = { address: addr, privateKey: '0x0' };
+        const client = createClient({ chain: studionet, account: glAccount as any });
+        checkExistingSBT(addr, client);
+        
       } catch (error) {
         console.error('Connection failed:', error);
       }
@@ -128,8 +155,16 @@ function App() {
           }
 
           if (data) {
-            setResult(JSON.parse(data));
+            const parsedData = JSON.parse(data);
+            setResult(parsedData);
             addLine("> SUCCESS: Proof of Skill verified and recorded.", 1000);
+            
+            // Save to local storage cache
+            const saved = JSON.parse(localStorage.getItem('my_sbts') || '{}');
+            saved[walletAddress] = githubUrl;
+            localStorage.setItem('my_sbts', JSON.stringify(saved));
+            
+            setExistingSBT(parsedData);
           } else {
             addLine("> ERROR: Transaction still processing. Check explorer later.", 1000);
           }
@@ -234,6 +269,26 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Dashboard for Minted SBTs */}
+        {existingSBT && existingSBT.status === 'MINTED' && (
+          <div className="sbt-dashboard">
+            <div className="sbt-title">{'// YOUR SOULBOUND TOKENS'}</div>
+            <div className="sbt-card">
+              <div className="sbt-header">
+                <div className="sbt-type">{existingSBT.badge_type}</div>
+                <Code size={20} color="var(--terminal-green)" />
+              </div>
+              <div className="sbt-body">
+                This token is soulbound to your verified on-chain identity. It serves as cryptographic proof of your developer activity.
+              </div>
+              <div className="sbt-footer">
+                <span>URL: {existingSBT.url.replace('https://', '')}</span>
+                <span>VERIFIED BY AI ORACLE</span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );
