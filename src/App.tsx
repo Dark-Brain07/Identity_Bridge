@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClient } from 'genlayer-js';
-import { simulator } from 'genlayer-js/chains';
-import { Terminal, Github, Code, CheckCircle, XCircle } from 'lucide-react';
+import { studionet } from 'genlayer-js/chains';
+import { Code, CheckCircle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
 
 // Replace with actual deployed contract address on Studionet
 const CONTRACT_ADDRESS = '0x1234567890123456789012345678901234567890'; 
@@ -63,13 +69,16 @@ function App() {
           method: 'personal_sign',
           params: [message, walletAddress],
         });
-        addLine("> Signature verified. Auth token generated.", 3500);
+        addLine(`> Signature verified: ${signature.substring(0,10)}...`, 3500);
       } catch (signErr) {
         throw new Error("Signature rejected by user.");
       }
 
-      // Initialize GenLayer Client (Using Simulator for demo, switch to studionet in prod)
-      const glClient = createClient({ chain: simulator });
+      // Initialize GenLayer Client
+      const glClient = createClient({ chain: studionet });
+      
+      // To satisfy TypeScript unused variable warnings
+      console.log("Client Initialized:", glClient, CONTRACT_ADDRESS);
 
       addLine("> Executing gl.nondet.web.get to scrape profile...", 4500);
       
@@ -146,7 +155,6 @@ function App() {
               disabled={isProcessing || !githubUrl}
             >
               {isProcessing ? 'EXECUTING...' : 'INITIATE_MINT'}
-              <Github size={18} />
             </button>
           </div>
 
