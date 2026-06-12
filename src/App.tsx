@@ -11,7 +11,7 @@ declare global {
 }
 
 // Replace with actual deployed contract address on Studionet
-const CONTRACT_ADDRESS = '0x1234567890123456789012345678901234567890'; 
+const CONTRACT_ADDRESS = '0x184451423e6A219C1928ED79FA68FDc442e79041'; 
 
 function App() {
   const [walletAddress, setWalletAddress] = useState<string>('');
